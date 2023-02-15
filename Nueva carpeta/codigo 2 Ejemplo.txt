@@ -1,0 +1,135 @@
+create database Ejemplo
+
+use Ejemplo
+
+create table Proveedor(
+Id_Proveedor int identity(1,1) primary key not null,
+NombreProv nvarchar(45) not null,
+DirProv nvarchar(70) not null,
+TelProv char(8) check(TelProv like '[2|5|7|8][0-9][0-9][0-9][0-9][0-9][0-9][0-9]'),
+MailP nvarchar(50)
+)
+
+-- Procedimiento de insercion
+create procedure Nproveedor
+@NP nvarchar(45),
+@DP nvarchar(70),
+@TP char(8),
+@MP nvarchar(50)
+as
+insert into Proveedor values(@NP,@DP,@TP,@MP)
+
+Nproveedor 'DICEGSA','Carretera a Leon','22451545','dicegsa@gmail.com'
+
+select * from Proveedor
+
+-- Dar de baja al proveedor
+-- agregar un nuevo campo a la tabla Proveedor
+alter table Proveedor add EstadoP bit default 1
+
+-- actualizar el registro del proveedor
+update Proveedor set EstadoP=1 where Id_Proveedor=1
+
+Nproveedor 'RAMOS','Carretera Norte','84749652','lramos@gmail.com'
+
+create procedure DBP
+@IDP int
+as
+declare @idprov as int
+set @idprov=(select Id_Proveedor from Proveedor where Id_Proveedor=@IDP)
+if(@IDP=@idprov)
+begin
+  update Proveedor set EstadoP=0 where Id_Proveedor=@IDP
+end
+else
+begin
+   print 'Proveedor no encontrado'
+end
+
+DBP 2
+
+-- Modificacion de Proveedor
+alter procedure MProv
+@IDP int,
+@DP nvarchar(70),
+@TP char(8),
+@MP nvarchar(50)
+as
+declare @idprov as int
+set @idprov=(select Id_Proveedor from Proveedor where Id_Proveedor=@IDP)
+if(@IDP=@idprov)
+begin
+  update Proveedor set DirProv=@DP,TelProv=@TP,MailP=@MP where 
+  Id_Proveedor=@IDP and EstadoP=1
+end
+else
+begin
+   print 'Proveedor no encontrado'
+end
+
+select * from Proveedor
+
+MProv 1,'Masaya','22458574','distcgtgmail.com'
+
+-- Procedimiento de busqueda
+create procedure BProv
+@IDP int
+as
+declare @ip as int
+set @ip=(select Id_Proveedor from Proveedor where Id_Proveedor=@IDP)
+if(@ip=@IDP)
+begin
+  select * from Proveedor where Id_Proveedor=@IDP and EstadoP=1
+end
+else
+begin
+  print 'Proveedor no encontrado'
+end
+
+BProv 1
+
+-- Listar proveedores
+create procedure ListarP
+as
+select * from Proveedor where EstadoP=1
+
+ListarP
+
+-- Crear tabla Productos
+create table Productos(
+CodProd char(5) primary key not null,
+NombreProd nvarchar(45) not null,
+DescProd nvarchar(60) not null,
+precioP float not null,
+existp int not null,
+Id_Proveedor int foreign key references Proveedor(Id_Proveedor) not null
+)
+
+--Procedimientos de insercion
+alter procedure Nproductos
+@CP char(5),
+@NP nvarchar(45),
+@DP nvarchar(60),
+@PP float,
+@EP int
+as
+insert into Productos values(@CP,@NP,@DP,@PP,@EP,1)
+
+Nproductos '01','Celular','IPHONE XS MAX','380','2'
+Nproductos '02','Celular','IPHONE XS MAX','380','4'
+
+
+select * from Productos
+
+-- Crear los procedimientos de : Insercion, BAJA, Modificacion, Busqueda y Lista
+-- de Productos
+-- Crear usuario
+sp_addlogin 'Alejandro','200222','Clientes'
+sp_addsrvrolemember 'Alejandro','sysadmin'
+sp_adduser 'Alejandro','AJRG'
+sp_addrolemember 'db_datareader','AJRG'
+sp_addrolemember'db_datawriter','AJRG'
+
+select * from Usuarios
+
+select * from temporal
